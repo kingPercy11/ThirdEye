@@ -4,6 +4,10 @@
   "version": "1.0",
   "description": "Tracks active tabs, time spent, and optionally classifies pages",
   "permissions": ["tabs", "storage", "activeTab", "scripting"],
+  "host_permissions": [
+    "http://localhost:5001/*",
+    "http://127.0.0.1:5001/*"
+  ],
   "background": {
     "service_worker": "background/service-worker.js"
   },
@@ -26,4 +30,5 @@
     "48": "assets/icon48.png",
     "128": "assets/icon128.png"
   }
+  
 }
