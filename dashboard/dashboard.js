@@ -1,4 +1,5 @@
-const API_BASE_URL = 'http://localhost:8000';
+const API_BASE_URL = 'http://localhost:8000'; // ML API
+const BACKEND_URL = 'http://localhost:5001'; // Backend API
 
 let allResults = [];
 
@@ -12,6 +13,7 @@ const emptyState = document.getElementById('emptyState');
 const statsGrid = document.getElementById('statsGrid');
 const searchInput = document.getElementById('searchInput');
 const categoryFilter = document.getElementById('categoryFilter');
+const timeLimitSelect = document.getElementById('timeLimitSelect');
 
 // Event Listeners
 analyzeBtn.addEventListener('click', analyzeWebsites);
@@ -24,10 +26,16 @@ checkDatabase();
 
 async function analyzeWebsites() {
     setLoading(true);
-    showStatus('Analyzing websites...', 'info');
+    const hours = timeLimitSelect.value;
+    const timeText = hours ? `past ${getTimeText(hours)}` : 'all time';
+    showStatus(`Analyzing websites from ${timeText}...`, 'info');
     
     try {
-        const response = await fetch(`${API_BASE_URL}/analyze`);
+        const url = hours 
+            ? `${API_BASE_URL}/analyze?hours=${hours}`
+            : `${API_BASE_URL}/analyze`;
+        
+        const response = await fetch(url);
         const data = await response.json();
         
         if (data.error) {
@@ -38,7 +46,7 @@ async function analyzeWebsites() {
         displayResults(allResults);
         updateStats(allResults);
         populateCategoryFilter(allResults);
-        showStatus(`✓ Successfully analyzed ${data.total} websites`, 'success');
+        showStatus(`✓ Successfully analyzed ${data.total} websites from ${timeText}`, 'success');
         
     } catch (error) {
         console.error('Error:', error);
@@ -46,6 +54,15 @@ async function analyzeWebsites() {
     } finally {
         setLoading(false);
     }
+}
+
+function getTimeText(hours) {
+    hours = parseInt(hours);
+    if (hours === 1) return '1 hour';
+    if (hours === 24) return '24 hours';
+    if (hours === 168) return 'week';
+    if (hours < 24) return `${hours} hours`;
+    return `${hours / 24} days`;
 }
 
 async function checkDatabase() {

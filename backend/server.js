@@ -61,8 +61,8 @@ app.use((req, res, next) => {
 });
 
 // use env vars with sensible defaults
-const MONGO_URI = process.env.MONGO_URI || "mongodb://localhost:27017/thirdeye";
-const PORT = process.env.PORT || 5000;
+const MONGO_URI = process.env.MONGO_URI || "mongodb://localhost:27017/third_eye";
+const PORT = process.env.PORT || 5001;
 
 mongoose
   .connect(MONGO_URI)
@@ -122,8 +122,156 @@ app.post("/api/activity", async (req, res) => {
 });
 
 app.get("/api/activities", async (req, res) => {
-  const activities = await Activity.find().sort({ startTime: -1 });
-  res.json(activities);
+  try {
+    const activities = await Activity.find().sort({ startTime: -1 });
+
+    // Print fetched data
+    console.log("\n" + "=".repeat(80));
+    console.log("📊 FETCHED ACTIVITIES FROM DATABASE");
+    console.log("=".repeat(80));
+    console.log(`Total activities: ${activities.length}\n`);
+
+    activities.forEach((activity, index) => {
+      console.log(`[${index + 1}] Activity:`);
+      console.log(`  ID: ${activity._id}`);
+      console.log(`  URL: ${activity.url}`);
+      console.log(`  Title: ${activity.title || "N/A"}`);
+      console.log(`  Start Time: ${activity.startTime}`);
+      console.log(`  End Time: ${activity.endTime}`);
+      console.log(
+        `  Duration: ${activity.duration} seconds (${(
+          activity.duration / 60
+        ).toFixed(2)} minutes)`
+      );
+      console.log("-".repeat(80));
+    });
+
+    console.log(`\n✓ Total activities fetched: ${activities.length}`);
+    console.log("=".repeat(80) + "\n");
+
+    res.json(activities);
+  } catch (error) {
+    console.error("❌ Error fetching activities:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Add comprehensive MongoDB check endpoint
+app.get("/api/check-mongo", async (req, res) => {
+  try {
+    console.log("\n" + "=".repeat(80));
+    console.log("🔍 MONGODB CONNECTION CHECK");
+    console.log("=".repeat(80));
+
+    // Check connection
+    const dbState = mongoose.connection.readyState;
+    const states = ["disconnected", "connected", "connecting", "disconnecting"];
+    console.log(`Connection State: ${states[dbState]}`);
+
+    if (dbState !== 1) {
+      throw new Error("MongoDB is not connected");
+    }
+
+    // Get database info
+    const dbName = mongoose.connection.db.databaseName;
+    console.log(`Database Name: ${dbName}`);
+
+    // List collections
+    const collections = await mongoose.connection.db.listCollections().toArray();
+    console.log(`Collections: ${collections.map((c) => c.name).join(", ")}`);
+
+    // Count activities
+    const activityCount = await Activity.countDocuments();
+    console.log(`Total Activities: ${activityCount}`);
+
+    // Get sample activities
+    const sampleActivities = await Activity.find().limit(3).sort({ startTime: -1 });
+    console.log("\nSample Activities:");
+    sampleActivities.forEach((act, idx) => {
+      console.log(`  [${idx + 1}] ${act.title || "Untitled"} - ${act.url}`);
+    });
+
+    console.log("=".repeat(80) + "\n");
+
+    res.json({
+      status: "Connected",
+      database: dbName,
+      collections: collections.map((c) => c.name),
+      totalActivities: activityCount,
+      sampleActivities: sampleActivities.map((act) => ({
+        id: act._id,
+        url: act.url,
+        title: act.title,
+        duration: act.duration,
+      })),
+    });
+  } catch (error) {
+    console.error("❌ MongoDB Check Failed:", error);
+    res.status(500).json({
+      status: "Error",
+      error: error.message,
+    });
+  }
+});
+
+// Add test data endpoint for development
+app.post("/api/test-data", async (req, res) => {
+  try {
+    console.log("🧪 Adding test data...");
+    
+    const testActivities = [
+      {
+        url: "https://github.com",
+        title: "GitHub - Where the world builds software",
+        startTime: new Date(Date.now() - 3600000),
+        endTime: new Date(Date.now() - 2700000),
+        duration: 900
+      },
+      {
+        url: "https://stackoverflow.com",
+        title: "Stack Overflow - Where Developers Learn",
+        startTime: new Date(Date.now() - 7200000),
+        endTime: new Date(Date.now() - 6300000),
+        duration: 900
+      },
+      {
+        url: "https://youtube.com",
+        title: "YouTube",
+        startTime: new Date(Date.now() - 10800000),
+        endTime: new Date(Date.now() - 9000000),
+        duration: 1800
+      },
+      {
+        url: "https://amazon.com",
+        title: "Amazon - Online Shopping",
+        startTime: new Date(Date.now() - 14400000),
+        endTime: new Date(Date.now() - 13500000),
+        duration: 900
+      },
+      {
+        url: "https://wikipedia.org",
+        title: "Wikipedia - Free Encyclopedia",
+        startTime: new Date(Date.now() - 18000000),
+        endTime: new Date(Date.now() - 16200000),
+        duration: 1800
+      }
+    ];
+    
+    await Activity.insertMany(testActivities);
+    const count = await Activity.countDocuments();
+    
+    console.log(`✓ Added ${testActivities.length} test activities`);
+    console.log(`✓ Total activities in database: ${count}`);
+    
+    res.json({ 
+      message: "Test data added successfully", 
+      added: testActivities.length,
+      total: count
+    });
+  } catch (error) {
+    console.error("❌ Error adding test data:", error);
+    res.status(500).json({ error: error.message });
+  }
 });
 
 const server = app.listen(PORT, () =>

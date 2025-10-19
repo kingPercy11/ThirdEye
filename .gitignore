@@ -2,3 +2,6 @@ backend/node_modules
 backend/.env
 ml/.env
 background/.env
+dashboard/node_modules
+node_modules
+popup/.env
