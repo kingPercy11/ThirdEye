@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ThirdEye - Website Classification Dashboard</title>
+    <link rel="stylesheet" href="dashboard.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🔍 ThirdEye</h1>
+            <p class="subtitle">Website Classification Dashboard</p>
+        </header>
+
+        <div class="controls">
+            <button id="analyzeBtn" class="btn btn-primary">
+                <span class="btn-text">Analyze All Websites</span>
+                <span class="loader" style="display: none;"></span>
+            </button>
+            <button id="refreshBtn" class="btn btn-secondary">Refresh Data</button>
+            <div class="status" id="status"></div>
+        </div>
+
+        <div class="stats-grid" id="statsGrid" style="display: none;">
+            <div class="stat-card">
+                <div class="stat-value" id="totalWebsites">0</div>
+                <div class="stat-label">Total Websites</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="avgConfidence">0%</div>
+                <div class="stat-label">Avg Confidence</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="topCategory">-</div>
+                <div class="stat-label">Top Category</div>
+            </div>
+        </div>
+
+        <div class="results-container" id="resultsContainer" style="display: none;">
+            <h2>Classification Results</h2>
+            <div class="filter-bar">
+                <input type="text" id="searchInput" placeholder="Search by URL or title..." class="search-input">
+                <select id="categoryFilter" class="filter-select">
+                    <option value="">All Categories</option>
+                </select>
+            </div>
+            <div id="results" class="results-grid"></div>
+        </div>
+
+        <div class="empty-state" id="emptyState">
+            <div class="empty-icon">📊</div>
+            <h3>No Data Yet</h3>
+            <p>Click "Analyze All Websites" to start classification</p>
+        </div>
+    </div>
+
+    <script src="dashboard.js"></script>
+</body>
+</html>
