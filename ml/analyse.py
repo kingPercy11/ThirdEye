@@ -67,7 +67,6 @@ def preprocessing(text):
     return " ".join(text)
 
 def get_website_description(url: str, title: str = "") -> str:
-    """Get a one-line description of a website using Gemini API with fallback"""
     # Fallback: extract domain and use title if Gemini fails
     try:
         domain = urlparse(url).netloc.replace('www.', '')
@@ -79,7 +78,7 @@ def get_website_description(url: str, title: str = "") -> str:
         return f"{title if title else domain}" if title else f"Website: {domain}"
     
     try:
-        prompt = f"Give a 2-3 sentence description (max 35 keywords) of what this website is about based on its URL and title. URL: {url}, Title: {title if title else 'Unknown'}. Only return the description, nothing else."
+        prompt = f"Give a 4-5 sentence description using keywords of what this website is doing or telling us based on its URL and title and its contents. URL: {url}, Title: {title if title else 'Unknown'}. Only return the description, nothing else."
         response = model_gemini.generate_content(prompt)
         return response.text.strip()
     except Exception as e:

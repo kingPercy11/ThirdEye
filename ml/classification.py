@@ -55,7 +55,7 @@ X = X_tfidf
 Y = df["Category"].values
 
 from sklearn.model_selection import train_test_split
-x_train,x_test,y_train,y_test = train_test_split(X,Y,test_size = 0.2 , stratify = Y,random_state=43)
+x_train,x_test,y_train,y_test = train_test_split(X,Y,test_size = 0.3 , stratify = Y,random_state=43)
 # lr = LogisticRegression()
 # lr.fit(x_train,y_train)
 # y_pred = lr.predict(x_test)
@@ -70,88 +70,8 @@ svc = LinearSVC()
 svc.fit(x_train,y_train)
 y_pred = svc.predict(x_test)
 print(classification_report(y_pred,y_test,zero_division=True))
+
 pickle.dump(vectorizer, open('vectorizer.pkl', 'wb'))
 pickle.dump(svc, open('model.pkl', 'wb'))
 pickle.dump(LabelEncoder().fit(Y), open('encoder.pkl', 'wb'))       
 
-
-
-# print(f"Loaded {len(df)} rows from CSV")
-# print("Columns:", df.columns.tolist())
-
-# # Drop index column if exists
-# if 'Unnamed: 0' in df.columns:
-#     df = df.drop(columns=['Unnamed: 0'])
-
-# # Use cleaned_website_text and Category columns
-# X = df['cleaned_website_text'].fillna('')
-# y = df['Category']
-
-# # Remove rows with missing category
-# mask = y.notna() & (X.str.strip() != '')
-# X = X[mask]
-# y = y[mask]
-
-# print(f"After cleaning: {len(X)} rows")
-
-# # Encode labels
-# encoder = LabelEncoder()
-# y_encoded = encoder.fit_transform(y)
-
-# print("Unique categories:", len(encoder.classes_))
-# print("Sample categories:", encoder.classes_[:10])
-
-# # Text preprocessing
-# def transform_text(text):
-#     text = str(text).lower()
-#     text = nltk.word_tokenize(text)
-    
-#     y = []
-#     for i in text:
-#         if i.isalnum():
-#             y.append(i)
-    
-#     text = y[:]
-#     y.clear()
-    
-#     for i in text:
-#         if i not in stopwords.words('english') and i not in string.punctuation:
-#             y.append(i)
-            
-#     text = y[:]
-#     y.clear()
-    
-#     for i in text:
-#         y.append(ps.stem(i))
-    
-#     return " ".join(y)
-
-# # Apply transformation
-# X_transformed = X.apply(transform_text)
-# print("Text preprocessing complete")
-
-# # Model building
-# X_vectorized = tfidf.fit_transform(X_transformed)
-# print("Feature matrix shape:", X_vectorized.shape)
-
-# X_train, X_test, y_train, y_test = train_test_split(
-#     X_vectorized, y_encoded, test_size=0.2, random_state=42, stratify=y_encoded
-# )
-
-# mnb.fit(X_train, y_train)
-# y_pred = mnb.predict(X_test)
-
-# print("\n" + "="*50)
-# print("Model Performance:")
-# print("="*50)
-# print(f"Accuracy: {accuracy_score(y_test, y_pred):.4f}")
-# print("\nClassification Report:")
-# print(classification_report(y_test, y_pred, target_names=encoder.classes_))
-
-# # Save model and encoder
-# pickle.dump(tfidf, open('vectorizer.pkl', 'wb'))
-# pickle.dump(mnb, open('model.pkl', 'wb'))
-# pickle.dump(encoder, open('encoder.pkl', 'wb'))
-# print("\n Model saved successfully!")
-# print(f"Model can classify {len(encoder.classes_)} categories")
-# print(f"Training samples: {X_train.shape[0]}, Test samples: {X_test.shape[0]}")
